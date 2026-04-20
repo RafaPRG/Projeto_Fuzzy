@@ -50,13 +50,14 @@ class FuzzyRecommenderTests(unittest.TestCase):
         self.assertEqual(result.label, "perda de tempo")
         self.assertLess(result.score, 35.0)
 
-    def test_low_rating_has_total_priority_even_in_overlap_zone(self) -> None:
+    def test_overlap_zone_now_resolves_to_median_without_low_rating_short_circuit(self) -> None:
         result = classify_movie(5.8, 50_000, 800_000_000)
 
-        self.assertEqual(result.label, "perda de tempo")
-        self.assertEqual(result.score, 12.0)
-        self.assertEqual(len(result.activated_rules), 1)
-        self.assertEqual(result.activated_rules[0].name, "nota_baixa_domina")
+        self.assertEqual(result.label, "mediano")
+        self.assertEqual(result.score, 44.0)
+        self.assertTrue(
+            any(rule.name == "sucesso_comercial_sem_aclamacao" for rule in result.activated_rules)
+        )
 
     def test_excellent_with_few_votes_is_promising_but_not_masterpiece_yet(self) -> None:
         result = classify_movie(9.0, 1_500, 3_000_000)
