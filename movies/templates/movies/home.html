@@ -40,7 +40,7 @@
         {% endif %}
 
         {% if result %}
-            <section class="result-card mt-5" style="--accent: {{ result.accent }}; --glow: {{ result.glow }}; --surface: {{ result.surface }};">
+            <section id="analysis-result" class="result-card mt-5" style="--accent: {{ result.accent }}; --glow: {{ result.glow }}; --surface: {{ result.surface }};">
                 <div class="row g-4 align-items-stretch">
                     <div class="col-lg-6">
                         <div class="detail-panel h-100">
@@ -197,6 +197,13 @@
     const searchForm = document.getElementById("movie-search-form");
     const loadingOverlay = document.getElementById("loading-overlay");
     const submitButton = document.getElementById("submit-button");
+    const analysisResult = document.getElementById("analysis-result");
+
+    if (analysisResult) {
+        window.requestAnimationFrame(function () {
+            analysisResult.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+    }
 
     if (searchForm) {
         searchForm.addEventListener("submit", function () {
