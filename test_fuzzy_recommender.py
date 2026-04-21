@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from avaliacao_scrap import _extract_imdb_from_json_ld, _extract_imdb_from_next_data
+from avaliacao_scrap import _extract_imdb_from_json_ld, _extract_imdb_from_next_data, _extract_og_image
 from bs4 import BeautifulSoup
 from fuzzy_recommender import (
     analyze_movie_from_portuguese_title,
@@ -95,6 +95,7 @@ class FuzzyRecommenderTests(unittest.TestCase):
                 "nome": "Avengers: Endgame",
                 "nota": "8.4",
                 "num_avaliacoes": "1,300,000",
+                "poster_url": "https://image.tmdb.org/mock-poster.jpg",
             }
         )
         box_office_fetcher = Mock(return_value="$2.799B")
@@ -160,7 +161,7 @@ class FuzzyRecommenderTests(unittest.TestCase):
                         {"@type": "BreadcrumbList", "name": "Breadcrumb"}
                     </script>
                     <script type="application/ld+json">
-                        {"@type": "Movie", "name": "Titanic", "aggregateRating": {"ratingValue": 7.9, "ratingCount": 1200000}}
+                        {"@type": "Movie", "name": "Titanic", "image": "https://images.example/titanic.jpg", "aggregateRating": {"ratingValue": 7.9, "ratingCount": 1200000}}
                     </script>
                 </head>
             </html>
@@ -174,6 +175,7 @@ class FuzzyRecommenderTests(unittest.TestCase):
                 "nome": "Titanic",
                 "nota": "7.9",
                 "num_avaliacoes": "1200000",
+                "poster_url": "https://images.example/titanic.jpg",
             },
         )
 
@@ -188,6 +190,7 @@ class FuzzyRecommenderTests(unittest.TestCase):
                                 "pageProps": {
                                     "aboveTheFoldData": {
                                         "titleText": {"text": "Titanic"},
+                                        "primaryImage": {"url": "https://images.example/titanic-next.jpg"},
                                         "ratingsSummary": {
                                             "aggregateRating": 7.9,
                                             "voteCount": 1200000
@@ -209,8 +212,23 @@ class FuzzyRecommenderTests(unittest.TestCase):
                 "nome": "Titanic",
                 "nota": "7.9",
                 "num_avaliacoes": "1200000",
+                "poster_url": "https://images.example/titanic-next.jpg",
             },
         )
+
+    def test_extract_og_image_reads_fallback_meta_tag(self) -> None:
+        soup = BeautifulSoup(
+            """
+            <html>
+                <head>
+                    <meta property="og:image" content="https://images.example/titanic-og.jpg">
+                </head>
+            </html>
+            """,
+            "html.parser",
+        )
+
+        self.assertEqual(_extract_og_image(soup), "https://images.example/titanic-og.jpg")
 
 
 if __name__ == "__main__":

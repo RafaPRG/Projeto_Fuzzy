@@ -145,6 +145,7 @@ def build_dashboard_context(movie_result: MovieAnalysisResult) -> dict[str, Any]
         "original_title": movie_result.original_title_pt,
         "rating": str(movie_result.imdb_result.get("nota", "N/A")),
         "vote_count": format_vote_count(movie_result.imdb_result.get("num_avaliacoes", 0)),
+        "poster_url": movie_result.imdb_result.get("poster_url", ""),
         "box_office": format_compact_currency(movie_result.box_office_result),
         "raw_box_office": movie_result.box_office_result,
         "label": movie_result.classification.label,

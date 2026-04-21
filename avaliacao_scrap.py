@@ -24,17 +24,37 @@ def _iter_json_candidates(payload):
             yield from _iter_json_candidates(item)
 
 
+def _normalize_image_url(image_value) -> str:
+    if isinstance(image_value, str):
+        return image_value
+
+    if isinstance(image_value, dict):
+        url = image_value.get("url")
+        if isinstance(url, str):
+            return url
+
+    if isinstance(image_value, list):
+        for item in image_value:
+            normalized = _normalize_image_url(item)
+            if normalized:
+                return normalized
+
+    return ""
+
+
 def _normalize_imdb_payload(candidate: dict) -> dict[str, str] | None:
     aggregate = candidate.get("aggregateRating") or {}
     title_name = candidate.get("name")
     rating_value = aggregate.get("ratingValue")
     rating_count = aggregate.get("ratingCount")
+    poster_url = _normalize_image_url(candidate.get("image"))
 
     if title_name and rating_value is not None and rating_count is not None:
         return {
             "nome": str(title_name),
             "nota": str(rating_value),
             "num_avaliacoes": str(rating_count),
+            "poster_url": poster_url,
         }
 
     return None
@@ -85,15 +105,35 @@ def _extract_imdb_from_next_data(soup: BeautifulSoup) -> dict[str, str] | None:
     )
     rating_value = ratings_summary.get("aggregateRating")
     rating_count = ratings_summary.get("voteCount")
+    poster_url = _normalize_image_url(above_the_fold.get("primaryImage"))
 
     if title_name and rating_value is not None and rating_count is not None:
         return {
             "nome": str(title_name),
             "nota": str(rating_value),
             "num_avaliacoes": str(rating_count),
+            "poster_url": poster_url,
         }
 
     return None
+
+
+def _extract_og_image(soup: BeautifulSoup) -> str:
+    og_image_tag = soup.find("meta", attrs={"property": "og:image"})
+    if not og_image_tag:
+        return ""
+
+    content = og_image_tag.get("content")
+    return content.strip() if isinstance(content, str) else ""
+
+
+def _with_fallback_poster(movie_data: dict[str, str], fallback_poster_url: str) -> dict[str, str]:
+    if movie_data.get("poster_url") or not fallback_poster_url:
+        return movie_data
+
+    enriched_data = dict(movie_data)
+    enriched_data["poster_url"] = fallback_poster_url
+    return enriched_data
 
 
 def get_imdb_rating_robust(movie_name: str) -> dict[str, str] | str:
@@ -125,13 +165,14 @@ def get_imdb_rating_robust(movie_name: str) -> dict[str, str] | str:
 
         wait.until(EC.presence_of_element_located((By.ID, "__NEXT_DATA__")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
+        fallback_poster_url = _extract_og_image(soup)
         parsed_result = _extract_imdb_from_json_ld(soup)
         if parsed_result is not None:
-            return parsed_result
+            return _with_fallback_poster(parsed_result, fallback_poster_url)
 
         parsed_result = _extract_imdb_from_next_data(soup)
         if parsed_result is not None:
-            return parsed_result
+            return _with_fallback_poster(parsed_result, fallback_poster_url)
 
         return (
             "Encontramos a pagina do filme no IMDb, mas nao foi possivel extrair "

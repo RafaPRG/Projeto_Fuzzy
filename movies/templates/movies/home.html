@@ -44,12 +44,22 @@
                 <div class="row g-4 align-items-stretch">
                     <div class="col-lg-6">
                         <div class="detail-panel h-100">
-                            <div class="meta-pill">Consulta finalizada</div>
-                            <h2 class="movie-title mt-3">{{ result.movie_name }}</h2>
-                            <p class="movie-subtitle mb-4">
-                                Busca enviada como <strong>{{ result.original_title }}</strong>
-                                e resolvida como <strong>{{ result.translated_title }}</strong>.
-                            </p>
+                            <div class="movie-overview">
+                                {% if result.poster_url %}
+                                    <div class="movie-poster-shell">
+                                        <img src="{{ result.poster_url }}" alt="Poster do filme {{ result.movie_name }}" class="movie-poster" loading="lazy" referrerpolicy="no-referrer">
+                                    </div>
+                                {% endif %}
+
+                                <div class="movie-copy-block">
+                                    <div class="meta-pill">Consulta finalizada</div>
+                                    <h2 class="movie-title">{{ result.movie_name }}</h2>
+                                    <p class="movie-subtitle">
+                                        Busca enviada como <strong>{{ result.original_title }}</strong>
+                                        e resolvida como <strong>{{ result.translated_title }}</strong>.
+                                    </p>
+                                </div>
+                            </div>
 
                             <div class="stats-grid">
                                 <article class="stat-chip">
