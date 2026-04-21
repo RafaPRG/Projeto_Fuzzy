@@ -1,17 +1,21 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Dashboard Fuzzy{% endblock %}
 
 {% block content %}
 <div class="app-shell">
     <div class="grain"></div>
-    <main class="container py-5">
+    <main class="container pt-0 pb-5">
         <section class="hero-panel mx-auto text-center">
-            <p class="eyebrow">Termometro da Galera</p>
-            <h1 class="display-title">Descubra o veredito fuzzy do seu filme</h1>
+            <div class="hero-logo-wrap">
+                <img src="{% static 'images/logo.png' %}" alt="Logo do CineScore" class="hero-logo">
+            </div>
+            <p class="eyebrow">Termômetro da Galera</p>
+            <h1 class="display-title">Análise inteligente para quem ama cinema.</h1>
             <p class="hero-copy">
-                Digite um titulo em portugues e deixe o sistema cruzar traducao, IMDb e bilheteria
-                para entregar um parecer rapido, visual e facil de entender.
+                Digite um título em português e deixe o sistema cruzar tradução, IMDb e bilheteria
+                para entregar um parecer rápido, visual e fácil de entender.
             </p>
 
             <form method="post" id="movie-search-form" class="search-card mt-4">
@@ -58,7 +62,7 @@
                                 <article class="stat-chip">
                                     <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
                                     <div>
-                                        <small>Avaliacoes</small>
+                                        <small>Avaliações</small>
                                         <strong>{{ result.vote_count }}</strong>
                                     </div>
                                 </article>
@@ -98,7 +102,7 @@
                         <div class="accordion-item custom-accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed custom-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#whyCollapse" aria-expanded="false" aria-controls="whyCollapse">
-                                    Por que essa classificacao?
+                                    Por que essa classificação?
                                 </button>
                             </h2>
                             <div id="whyCollapse" class="accordion-collapse collapse" data-bs-parent="#insightAccordion">
@@ -112,7 +116,7 @@
                                         {% empty %}
                                             <li>
                                                 <strong>Nenhuma regra dominante foi destacada.</strong>
-                                                <span>O sistema caiu numa zona neutra de avaliacao.</span>
+                                                <span>O sistema caiu numa zona neutra de avaliação.</span>
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -131,7 +135,7 @@
                         <div class="technical-panel">
                             <div class="row g-4">
                                 <div class="col-lg-7">
-                                    <h4 class="tech-title">Pertinencias brutas</h4>
+                                    <h4 class="tech-title">Pertinências brutas</h4>
                                     <div class="table-responsive">
                                         <table class="table table-dark table-borderless align-middle mb-0">
                                             <thead>
@@ -161,7 +165,7 @@
                                         {% for rule in result.rule_rows %}
                                             <article class="raw-rule-card">
                                                 <strong>{{ rule.name }}</strong>
-                                                <span>forca={{ rule.strength }}</span>
+                                                <span>força={{ rule.strength }}</span>
                                             </article>
                                         {% empty %}
                                             <article class="raw-rule-card">
@@ -183,7 +187,7 @@
     <div class="loading-card">
         <div class="spinner-border text-warning" role="status" aria-hidden="true"></div>
         <h2>Coletando sinais do filme...</h2>
-        <p>Traducao, IMDb e Box Office Mojo estao sendo consultados.</p>
+        <p>Tradução, IMDb e Box Office Mojo estão sendo consultados.</p>
     </div>
 </div>
 {% endblock %}

@@ -8,7 +8,7 @@ class MovieSearchForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control search-input",
-                "placeholder": "Digite um filme em portugues",
+                "placeholder": "Digite um filme em português",
                 "autocomplete": "off",
                 "spellcheck": "false",
                 "required": True,

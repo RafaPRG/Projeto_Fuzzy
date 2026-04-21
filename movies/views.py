@@ -24,7 +24,7 @@ def home(request):
             else:
                 result = build_dashboard_context(analysis)
         else:
-            error_message = "Digite um titulo valido antes de iniciar a busca."
+            error_message = "Digite um título válido antes de iniciar a busca."
     else:
         form = MovieSearchForm()
 
