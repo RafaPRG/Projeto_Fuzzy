@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
+from avaliacao_scrap import _extract_imdb_from_json_ld, _extract_imdb_from_next_data
+from bs4 import BeautifulSoup
 from fuzzy_recommender import (
     analyze_movie_from_portuguese_title,
     classify_movie,
@@ -9,6 +11,7 @@ from fuzzy_recommender import (
     parse_vote_count,
     resolve_lookup_title,
 )
+from movies.presentation import friendly_error_message
 
 
 class FuzzyRecommenderTests(unittest.TestCase):
@@ -122,6 +125,92 @@ class FuzzyRecommenderTests(unittest.TestCase):
                 "Velozes e Furiosos 9",
                 Mock(return_value="  "),
             )
+
+    def test_analysis_raises_specific_message_when_imdb_page_cannot_be_parsed(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Falha ao ler dados do IMDb"):
+            analyze_movie_from_portuguese_title(
+                movie_title_pt="Titanic",
+                translator=Mock(return_value="Titanic"),
+                imdb_fetcher=Mock(
+                    return_value=(
+                        "Encontramos a pagina do filme no IMDb, mas nao foi possivel extrair "
+                        "nota e numero de avaliacoes."
+                    )
+                ),
+                box_office_fetcher=Mock(return_value="$100M"),
+            )
+
+    def test_friendly_error_message_explains_when_imdb_movie_was_found_but_not_parsed(self) -> None:
+        message = friendly_error_message(
+            ValueError(
+                "Falha ao ler dados do IMDb: Encontramos a pagina do filme no IMDb, "
+                "mas nao foi possivel extrair nota e numero de avaliacoes."
+            )
+        )
+
+        self.assertIn("Encontramos o filme no IMDb", message)
+        self.assertIn("nao conseguimos ler nota e avaliacoes", message)
+
+    def test_extract_imdb_from_json_ld_uses_movie_payload_instead_of_first_script(self) -> None:
+        soup = BeautifulSoup(
+            """
+            <html>
+                <head>
+                    <script type="application/ld+json">
+                        {"@type": "BreadcrumbList", "name": "Breadcrumb"}
+                    </script>
+                    <script type="application/ld+json">
+                        {"@type": "Movie", "name": "Titanic", "aggregateRating": {"ratingValue": 7.9, "ratingCount": 1200000}}
+                    </script>
+                </head>
+            </html>
+            """,
+            "html.parser",
+        )
+
+        self.assertEqual(
+            _extract_imdb_from_json_ld(soup),
+            {
+                "nome": "Titanic",
+                "nota": "7.9",
+                "num_avaliacoes": "1200000",
+            },
+        )
+
+    def test_extract_imdb_from_next_data_as_fallback(self) -> None:
+        soup = BeautifulSoup(
+            """
+            <html>
+                <head>
+                    <script id="__NEXT_DATA__" type="application/json">
+                        {
+                            "props": {
+                                "pageProps": {
+                                    "aboveTheFoldData": {
+                                        "titleText": {"text": "Titanic"},
+                                        "ratingsSummary": {
+                                            "aggregateRating": 7.9,
+                                            "voteCount": 1200000
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    </script>
+                </head>
+            </html>
+            """,
+            "html.parser",
+        )
+
+        self.assertEqual(
+            _extract_imdb_from_next_data(soup),
+            {
+                "nome": "Titanic",
+                "nota": "7.9",
+                "num_avaliacoes": "1200000",
+            },
+        )
 
 
 if __name__ == "__main__":

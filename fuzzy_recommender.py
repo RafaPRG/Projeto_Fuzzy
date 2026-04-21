@@ -373,7 +373,13 @@ def analyze_movie_from_lookup_title(
 
     imdb_result: Any = imdb_fetcher(normalized_lookup_title)
     if not isinstance(imdb_result, dict):
-        raise ValueError(f"Erro ao buscar dados do IMDb: {imdb_result}")
+        imdb_message = str(imdb_result).strip()
+        lowered_imdb_message = imdb_message.lower()
+
+        if "nao encontrado" in lowered_imdb_message:
+            raise ValueError("Filme nao encontrado no IMDb.")
+
+        raise ValueError(f"Falha ao ler dados do IMDb: {imdb_message}")
 
     box_office_result = box_office_fetcher(normalized_lookup_title)
     if isinstance(box_office_result, str) and box_office_result.startswith("Erro"):
