@@ -1,5 +1,6 @@
 import time
 from urllib.parse import quote_plus
+from typing import Callable
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -11,7 +12,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-def get_worldwide_box_office(movie_name: str) -> str:
+def _emit_log(logger: Callable[[str], None] | None, message: str) -> None:
+    print(message, flush=True)
+    if logger is not None:
+        logger(message)
+
+
+def get_worldwide_box_office(
+    movie_name: str,
+    logger: Callable[[str], None] | None = None,
+) -> str:
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -22,7 +32,7 @@ def get_worldwide_box_office(movie_name: str) -> str:
     driver.set_page_load_timeout(20)
 
     try:
-        print(f"Buscando bilheteria por: {movie_name}...")
+        _emit_log(logger, f"Buscando bilheteria por: {movie_name}...")
         search_url = f"https://www.boxofficemojo.com/search/?q={quote_plus(movie_name)}"
         driver.get(search_url)
 

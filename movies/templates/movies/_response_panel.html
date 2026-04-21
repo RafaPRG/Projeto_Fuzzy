@@ -1,0 +1,159 @@
+{% if error_message %}
+    <section class="alert-panel mt-4 mx-auto">
+        <div class="alert alert-danger shadow-sm mb-0" role="alert">
+            <strong>Busca interrompida.</strong> {{ error_message }}
+        </div>
+    </section>
+{% endif %}
+
+{% if result %}
+    <section id="analysis-result" class="result-card mt-5" style="--accent: {{ result.accent }}; --glow: {{ result.glow }}; --surface: {{ result.surface }};">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="detail-panel h-100">
+                    <div class="movie-overview">
+                        {% if result.poster_url %}
+                            <div class="movie-poster-shell">
+                                <img src="{{ result.poster_url }}" alt="Poster do filme {{ result.movie_name }}" class="movie-poster" loading="lazy" referrerpolicy="no-referrer">
+                            </div>
+                        {% endif %}
+
+                        <div class="movie-copy-block">
+                            <div class="meta-pill">Consulta finalizada</div>
+                            <h2 class="movie-title">{{ result.movie_name }}</h2>
+                            <p class="movie-subtitle">
+                                Busca enviada como <strong>{{ result.original_title }}</strong>
+                                e resolvida como <strong>{{ result.translated_title }}</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <article class="stat-chip">
+                            <span class="stat-icon"><i class="fa-solid fa-star"></i></span>
+                            <div>
+                                <small>Nota IMDb</small>
+                                <strong>{{ result.rating }}</strong>
+                            </div>
+                        </article>
+                        <article class="stat-chip">
+                            <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
+                            <div>
+                                <small>Avaliacoes</small>
+                                <strong>{{ result.vote_count }}</strong>
+                            </div>
+                        </article>
+                        <article class="stat-chip">
+                            <span class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></span>
+                            <div>
+                                <small>Bilheteria</small>
+                                <strong>{{ result.box_office }}</strong>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="verdict-panel h-100">
+                    <p class="verdict-label">Veredito fuzzy</p>
+                    <h3 class="verdict-headline">{{ result.headline }}</h3>
+                    <p class="verdict-copy">{{ result.summary }}</p>
+
+                    <div class="score-gauge" style="--score: {{ result.score }};">
+                        <div class="score-gauge-inner">
+                            <span>{{ result.score_label }}</span>
+                            <small>/ 100</small>
+                        </div>
+                    </div>
+
+                    <div class="score-bar mt-4">
+                        <div class="score-bar-fill" style="width: {{ result.score }}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-panel mt-4">
+            <div class="accordion" id="insightAccordion">
+                <div class="accordion-item custom-accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed custom-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#whyCollapse" aria-expanded="false" aria-controls="whyCollapse">
+                            Por que essa classificacao?
+                        </button>
+                    </h2>
+                    <div id="whyCollapse" class="accordion-collapse collapse" data-bs-parent="#insightAccordion">
+                        <div class="accordion-body">
+                            <ul class="rule-list">
+                                {% for rule in result.rule_rows %}
+                                    <li>
+                                        <strong>{{ rule.description }}</strong>
+                                        <span>Impacto fuzzy: {{ rule.strength }}</span>
+                                    </li>
+                                {% empty %}
+                                    <li>
+                                        <strong>Nenhuma regra dominante foi destacada.</strong>
+                                        <span>O sistema caiu numa zona neutra de avaliacao.</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="tech-footer mt-4">
+            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#techData" aria-expanded="false" aria-controls="techData">
+                Ver Dados Fuzzy
+            </button>
+
+            <div class="collapse mt-3" id="techData">
+                <div class="technical-panel">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <h4 class="tech-title">Pertinencias brutas</h4>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-borderless align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Grupo</th>
+                                            <th>Valores</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for group in result.membership_rows %}
+                                            <tr>
+                                                <td>{{ group.group }}</td>
+                                                <td>
+                                                    {% for item in group.values %}
+                                                        <span class="raw-chip">{{ item.label }}={{ item.value }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <h4 class="tech-title">Regras ativadas</h4>
+                            <div class="raw-rule-stack">
+                                {% for rule in result.rule_rows %}
+                                    <article class="raw-rule-card">
+                                        <strong>{{ rule.name }}</strong>
+                                        <span>forca={{ rule.strength }}</span>
+                                    </article>
+                                {% empty %}
+                                    <article class="raw-rule-card">
+                                        <strong>Nenhuma regra ativa</strong>
+                                    </article>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
+{% endif %}

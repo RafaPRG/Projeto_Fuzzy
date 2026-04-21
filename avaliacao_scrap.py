@@ -1,5 +1,6 @@
 import json
 from urllib.parse import quote_plus
+from typing import Callable
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -9,6 +10,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+
+
+def _emit_log(logger: Callable[[str], None] | None, message: str) -> None:
+    print(message, flush=True)
+    if logger is not None:
+        logger(message)
 
 
 def _iter_json_candidates(payload):
@@ -136,7 +143,10 @@ def _with_fallback_poster(movie_data: dict[str, str], fallback_poster_url: str) 
     return enriched_data
 
 
-def get_imdb_rating_robust(movie_name: str) -> dict[str, str] | str:
+def get_imdb_rating_robust(
+    movie_name: str,
+    logger: Callable[[str], None] | None = None,
+) -> dict[str, str] | str:
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument(
@@ -150,7 +160,7 @@ def get_imdb_rating_robust(movie_name: str) -> dict[str, str] | str:
     driver.set_page_load_timeout(20)
 
     try:
-        print(f"Buscando por: {movie_name}...")
+        _emit_log(logger, f"Buscando por filme no IMDb: {movie_name}...")
         search_url = f"https://www.imdb.com/find?q={quote_plus(movie_name)}&s=tt&ttype=ft"
         driver.get(search_url)
 
@@ -160,7 +170,7 @@ def get_imdb_rating_robust(movie_name: str) -> dict[str, str] | str:
         )
 
         movie_url = first_result_element.get_attribute("href")
-        print(f"Filme encontrado! Acessando: {movie_url}")
+        _emit_log(logger, f"Filme encontrado! Acessando: {movie_url}")
         driver.get(movie_url)
 
         wait.until(EC.presence_of_element_located((By.ID, "__NEXT_DATA__")))

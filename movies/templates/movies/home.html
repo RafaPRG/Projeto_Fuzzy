@@ -11,11 +11,11 @@
             <div class="hero-logo-wrap">
                 <img src="{% static 'images/logo.png' %}" alt="Logo do CineScore" class="hero-logo">
             </div>
-            <p class="eyebrow">Termômetro da Galera</p>
-            <h1 class="display-title">Análise inteligente para quem ama cinema.</h1>
+            <p class="eyebrow">Termometro da Galera</p>
+            <h1 class="display-title">Analise inteligente para quem ama cinema.</h1>
             <p class="hero-copy">
-                Digite um título em português e deixe o sistema cruzar tradução, IMDb e bilheteria
-                para entregar um parecer rápido, visual e fácil de entender.
+                Digite um titulo em portugues e deixe o sistema cruzar traducao, IMDb e bilheteria
+                para entregar um parecer rapido, visual e facil de entender.
             </p>
 
             <form method="post" id="movie-search-form" class="search-card mt-4">
@@ -31,173 +31,22 @@
             </form>
         </section>
 
-        {% if error_message %}
-            <section class="alert-panel mt-4 mx-auto">
-                <div class="alert alert-danger shadow-sm mb-0" role="alert">
-                    <strong>Busca interrompida.</strong> {{ error_message }}
-                </div>
-            </section>
-        {% endif %}
-
-        {% if result %}
-            <section id="analysis-result" class="result-card mt-5" style="--accent: {{ result.accent }}; --glow: {{ result.glow }}; --surface: {{ result.surface }};">
-                <div class="row g-4 align-items-stretch">
-                    <div class="col-lg-6">
-                        <div class="detail-panel h-100">
-                            <div class="movie-overview">
-                                {% if result.poster_url %}
-                                    <div class="movie-poster-shell">
-                                        <img src="{{ result.poster_url }}" alt="Poster do filme {{ result.movie_name }}" class="movie-poster" loading="lazy" referrerpolicy="no-referrer">
-                                    </div>
-                                {% endif %}
-
-                                <div class="movie-copy-block">
-                                    <div class="meta-pill">Consulta finalizada</div>
-                                    <h2 class="movie-title">{{ result.movie_name }}</h2>
-                                    <p class="movie-subtitle">
-                                        Busca enviada como <strong>{{ result.original_title }}</strong>
-                                        e resolvida como <strong>{{ result.translated_title }}</strong>.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="stats-grid">
-                                <article class="stat-chip">
-                                    <span class="stat-icon"><i class="fa-solid fa-star"></i></span>
-                                    <div>
-                                        <small>Nota IMDb</small>
-                                        <strong>{{ result.rating }}</strong>
-                                    </div>
-                                </article>
-                                <article class="stat-chip">
-                                    <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
-                                    <div>
-                                        <small>Avaliações</small>
-                                        <strong>{{ result.vote_count }}</strong>
-                                    </div>
-                                </article>
-                                <article class="stat-chip">
-                                    <span class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></span>
-                                    <div>
-                                        <small>Bilheteria</small>
-                                        <strong>{{ result.box_office }}</strong>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="verdict-panel h-100">
-                            <p class="verdict-label">Veredito fuzzy</p>
-                            <h3 class="verdict-headline">{{ result.headline }}</h3>
-                            <p class="verdict-copy">{{ result.summary }}</p>
-
-                            <div class="score-gauge" style="--score: {{ result.score }};">
-                                <div class="score-gauge-inner">
-                                    <span>{{ result.score_label }}</span>
-                                    <small>/ 100</small>
-                                </div>
-                            </div>
-
-                            <div class="score-bar mt-4">
-                                <div class="score-bar-fill" style="width: {{ result.score }}%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="insight-panel mt-4">
-                    <div class="accordion" id="insightAccordion">
-                        <div class="accordion-item custom-accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed custom-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#whyCollapse" aria-expanded="false" aria-controls="whyCollapse">
-                                    Por que essa classificação?
-                                </button>
-                            </h2>
-                            <div id="whyCollapse" class="accordion-collapse collapse" data-bs-parent="#insightAccordion">
-                                <div class="accordion-body">
-                                    <ul class="rule-list">
-                                        {% for rule in result.rule_rows %}
-                                            <li>
-                                                <strong>{{ rule.description }}</strong>
-                                                <span>Impacto fuzzy: {{ rule.strength }}</span>
-                                            </li>
-                                        {% empty %}
-                                            <li>
-                                                <strong>Nenhuma regra dominante foi destacada.</strong>
-                                                <span>O sistema caiu numa zona neutra de avaliação.</span>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <footer class="tech-footer mt-4">
-                    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#techData" aria-expanded="false" aria-controls="techData">
-                        Ver Dados Fuzzy
-                    </button>
-
-                    <div class="collapse mt-3" id="techData">
-                        <div class="technical-panel">
-                            <div class="row g-4">
-                                <div class="col-lg-7">
-                                    <h4 class="tech-title">Pertinências brutas</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-dark table-borderless align-middle mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Grupo</th>
-                                                    <th>Valores</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for group in result.membership_rows %}
-                                                    <tr>
-                                                        <td>{{ group.group }}</td>
-                                                        <td>
-                                                            {% for item in group.values %}
-                                                                <span class="raw-chip">{{ item.label }}={{ item.value }}</span>
-                                                            {% endfor %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="col-lg-5">
-                                    <h4 class="tech-title">Regras ativadas</h4>
-                                    <div class="raw-rule-stack">
-                                        {% for rule in result.rule_rows %}
-                                            <article class="raw-rule-card">
-                                                <strong>{{ rule.name }}</strong>
-                                                <span>força={{ rule.strength }}</span>
-                                            </article>
-                                        {% empty %}
-                                            <article class="raw-rule-card">
-                                                <strong>Nenhuma regra ativa</strong>
-                                            </article>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            </section>
-        {% endif %}
+        <div id="response-slot">
+            {% include "movies/_response_panel.html" %}
+        </div>
     </main>
 </div>
 
 <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-card">
         <div class="spinner-border text-warning" role="status" aria-hidden="true"></div>
-        <h2>Coletando sinais do filme...</h2>
-        <p>Tradução, IMDb e Box Office Mojo estão sendo consultados.</p>
+        <h2>Coletando dados do filme...</h2>
+        <div class="loading-log-panel">
+            <p class="loading-log-heading">Logs da busca</p>
+            <ul id="loading-log-list" class="loading-log-list" aria-live="polite" aria-atomic="false">
+                <li class="loading-log-entry is-active">Aguardando inicio da busca...</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -207,25 +56,159 @@
     const searchForm = document.getElementById("movie-search-form");
     const loadingOverlay = document.getElementById("loading-overlay");
     const submitButton = document.getElementById("submit-button");
-    const analysisResult = document.getElementById("analysis-result");
+    const loadingLogList = document.getElementById("loading-log-list");
+    const responseSlot = document.getElementById("response-slot");
+    const startAnalysisUrl = "{% url 'movies:start-analysis' %}";
+    const statusUrlTemplate = "{% url 'movies:analysis-status' 'JOB_ID_PLACEHOLDER' %}";
 
-    if (analysisResult) {
+    let pollTimeoutId = null;
+
+    function getStatusUrl(jobId) {
+        return statusUrlTemplate.replace("JOB_ID_PLACEHOLDER", jobId);
+    }
+
+    function stopPolling() {
+        if (pollTimeoutId !== null) {
+            window.clearTimeout(pollTimeoutId);
+            pollTimeoutId = null;
+        }
+    }
+
+    function setOverlayVisible(isVisible) {
+        if (!loadingOverlay) {
+            return;
+        }
+        loadingOverlay.classList.toggle("is-visible", isVisible);
+        loadingOverlay.setAttribute("aria-hidden", isVisible ? "false" : "true");
+    }
+
+    function resetSubmitButton() {
+        if (!submitButton) {
+            return;
+        }
+        submitButton.removeAttribute("disabled");
+        submitButton.textContent = "Analisar agora";
+    }
+
+    function scrollToResult() {
+        const analysisResult = document.getElementById("analysis-result");
+        if (!analysisResult) {
+            return;
+        }
         window.requestAnimationFrame(function () {
             analysisResult.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     }
 
+    function renderLoadingLogs(messages) {
+        if (!loadingLogList) {
+            return;
+        }
+
+        const safeMessages = messages.length ? messages : ["Aguardando inicio da busca..."];
+        loadingLogList.innerHTML = "";
+
+        safeMessages.forEach(function (message, index) {
+            const entry = document.createElement("li");
+            entry.className = "loading-log-entry";
+            if (index === safeMessages.length - 1) {
+                entry.classList.add("is-active");
+            }
+            entry.textContent = message;
+            loadingLogList.appendChild(entry);
+        });
+
+        loadingLogList.scrollTop = loadingLogList.scrollHeight;
+    }
+
+    function renderClientError(message) {
+        if (!responseSlot) {
+            return;
+        }
+
+        responseSlot.innerHTML =
+            '<section class="alert-panel mt-4 mx-auto">' +
+                '<div class="alert alert-danger shadow-sm mb-0" role="alert">' +
+                    "<strong>Busca interrompida.</strong> " + message +
+                "</div>" +
+            "</section>";
+    }
+
+    async function pollJob(jobId) {
+        try {
+            const response = await fetch(getStatusUrl(jobId), {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(payload.error_message || "Nao foi possivel acompanhar a busca.");
+            }
+
+            renderLoadingLogs(payload.logs || []);
+
+            if (payload.done) {
+                if (payload.html && responseSlot) {
+                    responseSlot.innerHTML = payload.html;
+                }
+                setOverlayVisible(false);
+                resetSubmitButton();
+                scrollToResult();
+                stopPolling();
+                return;
+            }
+
+            pollTimeoutId = window.setTimeout(function () {
+                pollJob(jobId);
+            }, 900);
+        } catch (error) {
+            renderClientError(error.message || "Nao foi possivel acompanhar a busca.");
+            setOverlayVisible(false);
+            resetSubmitButton();
+            stopPolling();
+        }
+    }
+
     if (searchForm) {
-        searchForm.addEventListener("submit", function () {
+        searchForm.addEventListener("submit", async function (event) {
             const input = searchForm.querySelector("input[name='movie_title_pt']");
             if (!input || !input.value.trim()) {
                 return;
             }
-            loadingOverlay.classList.add("is-visible");
-            loadingOverlay.setAttribute("aria-hidden", "false");
+
+            event.preventDefault();
+            stopPolling();
+            renderLoadingLogs(["Iniciando busca..."]);
+            setOverlayVisible(true);
             submitButton.setAttribute("disabled", "disabled");
             submitButton.textContent = "Buscando...";
+
+            try {
+                const response = await fetch(startAnalysisUrl, {
+                    method: "POST",
+                    body: new FormData(searchForm),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                });
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(payload.error_message || "Nao foi possivel iniciar a busca.");
+                }
+
+                pollJob(payload.job_id);
+            } catch (error) {
+                renderClientError(error.message || "Nao foi possivel iniciar a busca.");
+                setOverlayVisible(false);
+                resetSubmitButton();
+                stopPolling();
+            }
         });
     }
+
+    scrollToResult();
 </script>
 {% endblock %}
