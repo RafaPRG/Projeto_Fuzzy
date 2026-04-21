@@ -1,6 +1,7 @@
 from agno.agent import Agent
 from agno.models.groq import Groq
 from dotenv import load_dotenv
+from agno.tools.tavily import TavilyTools
 
 load_dotenv()
 
@@ -26,6 +27,7 @@ def translate_title_to_english(
             timeout=timeout,
             max_retries=1,
         ),
+        tools=[TavilyTools()],
         instructions=TRANSLATION_INSTRUCTIONS,
     )
 
